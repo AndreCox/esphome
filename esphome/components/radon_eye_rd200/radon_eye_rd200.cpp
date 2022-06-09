@@ -148,8 +148,8 @@ void RadonEyeRD200::update() {
 }
 
 void RadonEyeRD200::write_query_message_() {
-  ESP_LOGV(TAG, "writing 0x50 to write service");
-  int request = 0x50;
+  ESP_LOGV(TAG, "writing 0x46 to write service");
+  int request = 0x46;
   auto status = esp_ble_gattc_write_char_descr(this->parent()->gattc_if, this->parent()->conn_id, this->write_handle_,
                                                sizeof(request), (uint8_t *) &request, ESP_GATT_WRITE_TYPE_NO_RSP,
                                                ESP_GATT_AUTH_REQ_NONE);
