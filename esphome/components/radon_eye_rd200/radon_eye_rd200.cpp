@@ -23,6 +23,7 @@ void RadonEyeRD200::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
     }
 
     case ESP_GATTC_SEARCH_CMPL_EVT: {
+      ESP_LOGV(TAG, "Gattic Search");
       this->read_handle_ = 0;
       auto *chr = this->parent()->get_characteristic(service_uuid_, sensors_read_characteristic_uuid_);
       if (chr == nullptr) {
@@ -68,6 +69,7 @@ void RadonEyeRD200::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_
 }
 
 void RadonEyeRD200::read_sensors_(uint8_t *value, uint16_t value_len) {
+  ESP_LOGV(TAG, "Reading radon sensor");
   if (value_len < 20) {
     ESP_LOGD(TAG, "Invalid read");
     return;
@@ -110,6 +112,7 @@ void RadonEyeRD200::read_sensors_(uint8_t *value, uint16_t value_len) {
   radon_value.chars[3] = value[13];
   float radon_month = radon_value.number * convert_to_bwpm3;
 
+  ESP_LOGV(TAG, "Checking Radon Values");
   if (is_valid_radon_value_(radon_month)) {
     ESP_LOGV(TAG, "Radon Long Term based on month");
     radon_long_term_sensor_->publish_state(radon_month);
@@ -132,6 +135,7 @@ void RadonEyeRD200::read_sensors_(uint8_t *value, uint16_t value_len) {
 bool RadonEyeRD200::is_valid_radon_value_(float radon) { return radon > 0.0 and radon < 37000; }
 
 void RadonEyeRD200::update() {
+  ESP_LOGW(TAG, "Update connection state");
   if (this->node_state != esp32_ble_tracker::ClientState::ESTABLISHED) {
     if (!parent()->enabled) {
       ESP_LOGW(TAG, "Reconnecting to device");
@@ -155,6 +159,7 @@ void RadonEyeRD200::write_query_message_() {
 }
 
 void RadonEyeRD200::request_read_values_() {
+   ESP_LOGW(TAG, "Requesting read values");
   auto status = esp_ble_gattc_read_char(this->parent()->gattc_if, this->parent()->conn_id, this->read_handle_,
                                         ESP_GATT_AUTH_REQ_NONE);
   if (status) {
